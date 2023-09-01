@@ -429,6 +429,7 @@ class CleanGridSelect<T> extends _BasicGridSelect<T> {
     InteractionMode? interactionMode,
     OutlinedBorder? childShape,
     MaterialColor selectColor = Colors.green,
+    bool isEnabled = true,
   }) : super(
           itemBuilder: (context, index, didSelect, isSelected) {
             return _CleanGridSelectButton(
@@ -437,7 +438,8 @@ class CleanGridSelect<T> extends _BasicGridSelect<T> {
               interactionMode: interactionMode,
               childShape: childShape,
               selectColor: options[index].selectColor ?? selectColor,
-              onPressed: () => didSelect.call(options[index]),
+              onPressed:
+                  isEnabled ? () => didSelect.call(options[index]) : null,
               style: options[index].buttonStyle,
             );
           },
@@ -483,6 +485,7 @@ class CleanGridSelect<T> extends _BasicGridSelect<T> {
     InteractionMode? interactionMode,
     OutlinedBorder? childShape,
     MaterialColor selectColor = Colors.green,
+    bool isEnabled = true,
   }) : super(
           itemCount: optionCount,
           itemBuilder: (context, index, didSelect, isSelected) {
@@ -493,7 +496,7 @@ class CleanGridSelect<T> extends _BasicGridSelect<T> {
               interactionMode: interactionMode,
               childShape: childShape,
               selectColor: option.selectColor ?? selectColor,
-              onPressed: () => didSelect.call(option),
+              onPressed: isEnabled ? () => didSelect.call(option) : null,
               style: option.buttonStyle,
             );
           },

@@ -1,5 +1,6 @@
 import 'package:clean_uix/clean_uix.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CleanTextField extends StatelessWidget {
   final TextEditingController? controller;
@@ -13,14 +14,19 @@ class CleanTextField extends StatelessWidget {
   ///the parameters [borderOpacity] and [focusedBorderOpacity]
   final Color? borderColor;
 
+  ///Decoration for the text field, some fields are overriden by the button itself
+  ///
+  ///For changing the border color, use [borderColor] and [focusedBorderColor] instead of passing the values here
+  final InputDecoration decoration;
+
   ///Color for the border when focused
   final Color? focusedBorderColor;
   final Color? backgroundColor;
+  final Color? cursorColor;
   final TextStyle? style;
-  final String? label;
-  final TextStyle? labelStyle;
-  final String? hintText;
   final BorderRadius? borderRadius;
+  final int? maxLines;
+  final int? minLines;
 
   final bool autoFocus;
 
@@ -36,14 +42,14 @@ class CleanTextField extends StatelessWidget {
   ///Width for the border when focused, defaults to [1.9]
   final double? focusedBorderWidth;
 
-  final Widget? prefixIcon;
-  final Widget? suffixIcon;
-
   //Callbacks
   final VoidCallback? onEditingComplete;
   final void Function(String value)? onChanged;
   final void Function(String value)? onSubmitted;
   final void Function()? onTap;
+
+  final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
 
   const CleanTextField({
     Key? key,
@@ -51,25 +57,26 @@ class CleanTextField extends StatelessWidget {
     this.outerPadding = const EdgeInsets.symmetric(vertical: 9, horizontal: 17),
     this.contentPadding =
         const EdgeInsets.symmetric(horizontal: 19, vertical: 3),
+    this.decoration = const InputDecoration(),
     this.borderColor,
     this.focusedBorderColor,
     this.backgroundColor,
-    this.label,
-    this.labelStyle,
-    this.hintText,
+    this.cursorColor,
     this.borderRadius,
+    this.maxLines,
+    this.minLines,
     this.borderWidth,
     this.focusedBorderWidth,
     this.borderOpacity,
     this.focusedBorderOpacity,
     this.style,
-    this.prefixIcon,
-    this.suffixIcon,
     this.autoFocus = false,
     this.onEditingComplete,
     this.onChanged,
     this.onSubmitted,
     this.onTap,
+    this.keyboardType,
+    this.inputFormatters,
   })  : assert(
             borderOpacity != null
                 ? borderOpacity >= 0 && borderOpacity <= 1
@@ -99,22 +106,21 @@ class CleanTextField extends StatelessWidget {
       // ]),
       child: TextField(
         controller: controller,
-        cursorColor: _theme.primary,
+        cursorColor: cursorColor ?? _theme.primary,
         style: style,
         autofocus: autoFocus,
         onEditingComplete: onEditingComplete,
         onChanged: onChanged,
         onSubmitted: onSubmitted,
         onTap: onTap,
-        decoration: InputDecoration(
+        maxLines: maxLines,
+        minLines: minLines,
+        keyboardType: keyboardType,
+        inputFormatters: inputFormatters,
+        decoration: decoration.copyWith(
           filled: backgroundColor != null,
           fillColor: backgroundColor,
-          contentPadding: contentPadding,
-          labelText: label,
-          floatingLabelStyle: labelStyle ?? TextStyle(color: _theme.primary),
-          hintText: hintText,
-          prefixIcon: prefixIcon,
-          suffixIcon: suffixIcon,
+          floatingLabelStyle: TextStyle(color: _theme.primary),
           border: OutlineInputBorder(
             borderRadius: _borderRadius,
             borderSide: BorderSide(
@@ -150,9 +156,6 @@ class CleanTextField extends StatelessWidget {
         const EdgeInsets.symmetric(horizontal: 19, vertical: 3),
     Color? borderColor,
     Color? backgroundColor,
-    String? label,
-    TextStyle? labelStyle,
-    String? hintText,
     Color? focusedBorderColor,
     double? focusedBorderWidth,
     BorderRadius? borderRadius,
@@ -175,10 +178,7 @@ class CleanTextField extends StatelessWidget {
       borderWidth: borderWidth,
       borderRadius: borderRadius,
       contentPadding: contentPadding,
-      hintText: hintText,
       key: key,
-      label: label,
-      labelStyle: labelStyle,
       outerPadding: outerPadding,
       style: style,
     );
@@ -194,17 +194,11 @@ class _FilledCleanTextField extends CleanTextField {
         const EdgeInsets.symmetric(horizontal: 19, vertical: 3),
     Color? borderColor,
     Color? backgroundColor,
-    String? label,
-    TextStyle? labelStyle,
-    String? hintText,
   }) : super(
           key: key,
           backgroundColor: backgroundColor ?? Colors.grey[100],
           contentPadding: contentPadding,
           borderColor: borderColor,
-          label: label,
-          labelStyle: labelStyle,
-          hintText: hintText,
           outerPadding: outerPadding,
         );
 }

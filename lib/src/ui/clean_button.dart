@@ -278,7 +278,7 @@ class CleanButton extends StatelessWidget {
     );
   }
 
-  const factory CleanButton.icon({
+  factory CleanButton.icon({
     Key? key,
     required VoidCallback? onPressed,
     InteractionMode? interactionMode,
@@ -286,10 +286,19 @@ class CleanButton extends StatelessWidget {
     Widget? child,
     ButtonStyle? style,
   }) = _CleanIconButton;
+
+  ///Button with automatic loading indicator
+  factory CleanButton.loading({
+    Key? key,
+    required Future<void> Function()? onPressed,
+    required Widget child,
+    InteractionMode? interactionMode,
+    ButtonStyle? style,
+  }) = _CleanLoadingButton;
 }
 
 class _CleanIconButton extends CleanButton {
-  const _CleanIconButton({
+  _CleanIconButton({
     Key? key,
     VoidCallback? onPressed,
     InteractionMode? interactionMode,
@@ -301,7 +310,7 @@ class _CleanIconButton extends CleanButton {
           interactionMode: interactionMode,
           key: key,
           //TODO: Change this so icon + child is placed here
-          child: icon,
+          child: icon, //ChildIconWidget(icon: icon, child: child),
         );
 
   @override
@@ -403,5 +412,121 @@ class _ElevatedButtonDefaultMouseCursor
       return disabledCursor;
     }
     return enabledCursor;
+  }
+}
+
+class _CleanLoadingButton extends CleanButton {
+  const _CleanLoadingButton({
+    Key? key,
+    required Future<void> Function()? onPressed,
+    required Widget child,
+    InteractionMode? interactionMode,
+    Widget? label,
+    ButtonStyle? style,
+  }) : super(
+          onPressed: onPressed,
+          interactionMode: interactionMode,
+          key: key,
+          child: child, //ChildIconWidget(icon: icon, child: label),
+        );
+
+  @override
+  Widget build(BuildContext context) {
+    final _theme = CleanTheme.of(context);
+
+    final buttonStyle = style ??
+        CleanButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+          shape: ButtonStatics.shape,
+          minimumSize: const Size(45, 45),
+          side: BorderSide(color: _theme.primary, width: 0),
+        );
+
+    return LoadingChildWidget(
+      child: child!,
+      onPressed: onPressed as Future<void> Function(),
+    );
+    // CleanButton(
+    //   onPressed: onPressed,
+    //   interactionMode: interactionMode,
+    //   style: buttonStyle,
+    //   key: key,
+    //   child: child,
+    // );
+  }
+}
+
+class ChildIconWidget extends StatelessWidget {
+  const ChildIconWidget({super.key, required this.icon, required this.child});
+
+  final Widget? icon;
+  final Widget? child;
+
+  @override
+  Widget build(BuildContext context) {
+    return icon != null && child != null
+        ? Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) icon!,
+              SizedBox(width: icon != null ? 10 : 0),
+              if (child != null) Flexible(child: child!),
+            ],
+          )
+        : Container();
+  }
+}
+
+class LoadingChildWidget extends StatefulWidget {
+  const LoadingChildWidget(
+      {super.key, required this.child, this.onPressed, this.loadingIndicator});
+
+  final Widget child;
+  final Future<void> Function()? onPressed;
+  final Widget? loadingIndicator;
+
+  @override
+  State<LoadingChildWidget> createState() => _LoadingChildWidgetState();
+}
+
+class _LoadingChildWidgetState extends State<LoadingChildWidget> {
+  bool _isLoading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return CleanButton(
+      onPressed: () async {
+        setState(() {
+          _isLoading = true;
+        });
+        await widget.onPressed?.call();
+        setState(() {
+          _isLoading = false;
+        });
+      },
+      child: _isLoading
+          ? (widget.loadingIndicator ??
+              const CircularProgressIndicator.adaptive())
+          : widget.child,
+      // Column(children: [
+      //   if (widget.icon != null)
+      //     Flexible(
+      //         child: _isLoading
+      //             ? Center(
+      //                 child: (widget.loadingIndicator ??
+      //                     const CircularProgressIndicator.adaptive()),
+      //               )
+      //             : widget.icon!),
+      //   if (widget.child != null)
+      //     Expanded(
+      //       flex: 3,
+      //       child: _isLoading && widget.icon == null
+      //           ? Center(
+      //               child: widget.loadingIndicator ??
+      //                   const CircularProgressIndicator())
+      //           : widget.child!,
+      //     ),
+      // ]),
+    );
   }
 }
